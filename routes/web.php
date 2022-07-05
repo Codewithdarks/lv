@@ -24,6 +24,7 @@ use App\Http\Controllers\UpsellfunnelsController;
 Route::get('/', function () {
     return redirect()->route('dashboard');
 });
+Route::any('scan/uploaded-media', [BuilderController::class, 'ScanFileDirectory'])->name('scan.images');
 Auth::routes([
     'register' => false,
     'password.reset' => false,

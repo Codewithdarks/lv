@@ -4,7 +4,7 @@ function ucFirst(str) {
   return str[0].toUpperCase() + str.slice(1);
 }
 
-let mediaScanUrl = 'scan.php';
+let mediaScanUrl = '/scan/uploaded-media';
 
 class MediaModal {
 	constructor (modal = true)
@@ -104,7 +104,7 @@ class MediaModal {
 		this.filemanager = null;
 		this.breadcrumbs = null;
 		this.fileList = null;
-		this.mediaPath = "/media/";
+		this.mediaPath = "public/media";
 		this.type = "single";
 	}
 
@@ -300,7 +300,7 @@ class MediaModal {
 				_this.filemanager.find('span').show();
 			}
 			else {
-				_this.breadcrumbsUrls.push(ne      xtDir);
+				_this.breadcrumbsUrls.push(nextDir);
 			}
 
 			window.location.hash = encodeURIComponent(nextDir);

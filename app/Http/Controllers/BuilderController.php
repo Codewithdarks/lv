@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 define('MAX_FILE_LIMIT', 1024 * 1024 * 2); //2 Megabytes max html file size
+define('UPLOAD_PATH', 'media'); //upload path
 use App\Models\PageBuilder;
 use App\Models\Upsellfunnels;
 use Carbon\Carbon;
@@ -141,8 +142,66 @@ class BuilderController extends Controller
             $file = $request->file('file');
             $name = strtotime(now()).$file->getClientOriginalName();
             $file->move($upload_path, $name);
-            return asset($upload_path.$name);
+            return 'media/'.$name;
         }
         return false;
+    }
+
+    public function ScanFileDirectory(Request $request) {
+        $path = public_path('media');
+        $files = array_diff(scandir($path), array('.', '..'));
+        $assets = array();
+        foreach ($files as $one) {
+            if (! $one || $one[0] == '.') {
+                continue; // Ignore hidden files
+            }
+            if (is_dir($path.'/'.$one)) {
+                $assets[] = array(
+                    'name' => $one,
+                    'type' => 'folder',
+                    'path' => $one,
+                    'size' => filesize($path.'/'.$one)
+                );
+            } else {
+                $assets[] = array(
+                    'name' => $one,
+                    'type' => 'file',
+                    'path' => $one,
+                    'size' => filesize($path.'/'.$one)
+                );
+            }
+        }
+        dd($assets);
+        $images = implode(',', $assets);
+
+        $scandir = asset('media');
+        $files = array();
+        if (file_exists($scandir)) {
+            foreach (scandir($scandir) as $one) {
+                if (! $one || $one[0] == '.') {
+                    continue; // Ignore hidden files
+                }
+                if (is_dir($scandir . '/' . $one)) {
+                    // The path is a folder
+
+                    $files[] = [
+                        'name'  => $one,
+                        'type'  => 'folder',
+                        'path'  => str_replace($scandir, '', $scandir) . '/' . $one,
+                        'items' => $scandir($scandir . '/' . $one), // Recursively get the contents of the folder
+                    ];
+                } else {
+                    // It is a file
+
+                    $files[] = [
+                        'name' => $one,
+                        'type' => 'file',
+                        'path' => str_replace($scandir, '', $scandir) . '/' . $one,
+                        'size' => filesize($scandir . '/' . $one), // Gets the size of this file
+                    ];
+                }
+            }
+        }
+        return json_encode($files);
     }
 }
